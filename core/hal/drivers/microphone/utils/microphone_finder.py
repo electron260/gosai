@@ -26,5 +26,5 @@ def get_microphone_configuration(config: dict)->tuple[int, int, int, int]:
         device_index = config['microphone']['number'] if 'number' in config['microphone'].keys() else find_microphone_device()
         samplerate = config['microphone']['samplerate'] if 'samplerate' in config['microphone'].keys() else sd.query_devices(device_index, kind='input')['default_samplerate']
         channels = config['microphone']["channels"] if "channels" in config['microphone'].keys() else 1
-        blocksize = config['microphone']["blocksize"] if "blocksize" in config['microphone'].keys() else 1024
+        blocksize = config['microphone']["blocksize"] if "blocksize" in config['microphone'].keys() else 960
     return device_index, samplerate, channels, blocksize
