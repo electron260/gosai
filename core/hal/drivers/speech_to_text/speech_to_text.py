@@ -26,6 +26,21 @@ class Driver(BaseDriver):
         
         self.create_callback_on_event("transcription", self.transcript, "microphone", "audio_stream")
 
+    def recording(self, data):
+        block = data["block"][:, 0]        
+  
+        self.blocks.extend(block)
+        print('extending')
+    def transcribe(self, data):
+        start = time.time()
+        segments = self.model.transcribe(self.blocks, beam_size = 5)
+        
+        for segment in segments:
+            print("[%.2fs -> %.2fs] %s" % (segment.start, segment.end, segment.text))
+
+        
+        print('durée : ', time.time() - start)
+        self.blocks = []
     def transcript(self, data):
         """Estimates the frequency of the input data"""
 
