@@ -24,16 +24,20 @@ class Driver(BaseDriver):
         self.model = WhisperModel("medium.en", device="cuda", compute_type="int8")
 
         
-        self.create_callback_on_event("transcription", self.transcript, "microphone", "audio_stream")
+        #self.create_callback_on_event("transcription", self.transcript, "microphone", "audio_stream")
 
     def recording(self, data):
         block = data["block"][:, 0]        
   
         self.blocks.extend(block)
         print('extending')
+
+
     def transcribe(self, data):
         start = time.time()
-        segments = self.model.transcribe(self.blocks, beam_size = 5)
+
+        audio = data["block"][:, 0]
+        segments = self.model.transcribe(audio, beam_size = 5)
         
         for segment in segments:
             print("[%.2fs -> %.2fs] %s" % (segment.start, segment.end, segment.text))
@@ -41,35 +45,40 @@ class Driver(BaseDriver):
         
         print('durée : ', time.time() - start)
         self.blocks = []
-    def transcript(self, data):
-        """Estimates the frequency of the input data"""
 
-        block = data["block"][:, 0]
+
+    # def transcript(self, data):
+
+
+
+    #     """Estimates the frequency of the input data"""
+
+    #     block = data["block"][:, 0]
         
-        # change the time needed depending on the Activity detection Module 
-        if len(self.blocks) < 50*10*len(block):
+    #     # change the time needed depending on the Activity detection Module 
+    #     if len(self.blocks) < 50*10*len(block):
             
-            self.blocks.extend(block)
-            print('extending')
-        else:
-            self.blocks = self.blocks[:50*10*len(block)]
+    #         self.blocks.extend(block)
+    #         print('extending')
+    #     else:
+    #         self.blocks = self.blocks[:50*10*len(block)]
             
-            #self.blocks.extend(block)
-            samplerate = data["samplerate"]
-            # convert the sample rate 
+    #         #self.blocks.extend(block)
+    #         samplerate = data["samplerate"]
+    #         # convert the sample rate 
             
         
 
 
-            start = time.time()
-            segments = self.model.transcribe(self.blocks, beam_size = 5)
+    #         start = time.time()
+    #         segments = self.model.transcribe(self.blocks, beam_size = 5)
             
-            for segment in segments:
-                print("[%.2fs -> %.2fs] %s" % (segment.start, segment.end, segment.text))
+    #         for segment in segments:
+    #             print("[%.2fs -> %.2fs] %s" % (segment.start, segment.end, segment.text))
 
             
-            print('durée : ', time.time() - start)
-            self.blocks = []
+    #         print('durée : ', time.time() - start)
+    #         self.blocks = []
 
 
         
