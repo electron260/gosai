@@ -4,7 +4,8 @@ from scipy.signal import resample
 from core.hal.drivers.speech_to_text.fast_whisper.fast_whisper import WhisperModel
 import time
 import samplerate
-import webrtcvad
+import torch
+# import webrtcvad
 
 class Driver(BaseDriver):
 
@@ -24,17 +25,39 @@ class Driver(BaseDriver):
 
         self.patience = 0
         self.window = []
-        self.vad = webrtcvad.Vad(2)
+        # self.vad = webrtcvad.Vad(2)
 
-        # self.model, self.utils = torch.hub.load(repo_or_dir='snakers4/silero-vad',
-        #                             model='silero_vad',
-        #                             force_reload=True)
+        self.sr = 16000
+        self.model, self.utils = torch.hub.load(repo_or_dir='snakers4/silero-vad',
+                                    model='silero_vad',
+                                    force_reload=True)
 
 
 
         
-        self.create_callback_on_event("activity", self.activity, "microphone", "audio_stream")
+        #self.create_callback_on_event("activity", self.activity, "microphone", "audio_stream")
 
+
+
+    def predict(self, audio_chunk : np.array):
+        ## just probabilities
+
+        speech_prob = self.model(audio_chunk, self.sr).item()
+
+        return speech_prob
+
+# wav = read_audio('en_example.wav', sampling_rate=SAMPLING_RATE)
+# speech_probs = []
+# window_size_samples = 1536
+# for i in range(0, len(wav), window_size_samples):
+#     chunk = wav[i: i+ window_size_samples]
+#     if len(chunk) < window_size_samples:
+#       break
+#     speech_prob = model(chunk, SAMPLING_RATE).item()
+#     speech_probs.append(speech_prob)
+# vad_iterator.reset_states() # reset model states after each audio
+
+# print(speech_probs[:10]) # first 10 chunks predicts
     def activity(self, data):
         """Estimates the frequency of the input data"""
 
